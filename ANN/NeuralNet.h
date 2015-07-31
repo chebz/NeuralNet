@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 
+class NeuronLayer;
+
 class NeuralNet : public Genome, public ObjectPool {
 	const NeuralNetSettings mSettings;
 

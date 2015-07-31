@@ -28,10 +28,6 @@ public:
 
 	virtual void init(int numInputsPerNeuron, const Neuron *parent, double mutationRate);
 
-	void cross(Neuron *pOther);
-
-	void mutate(double mutationRate, double maxPerturbation);
-
 	void setValue(double value) { mValue = value; }
 
 	double getValue() const { return mValue; }

@@ -17,7 +17,7 @@ double Neuron::mutate(double weight, double mutationRate) {
 
 void Neuron::init(int numInputsPerNeuron) {
 	for (int iInput = 0; iInput < numInputsPerNeuron; iInput++) {
-		mWeights.push_back(Utils::getInstance().random01());
+		mWeights.push_back(Utils::getInstance().randomRange(-1.0, 1.0));
 	}
 }
 

@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 
+class Neuron;
+
 class NeuronLayer : public Poolable, public ObjectPool {
 	const NeuronLayerSettings &mSettings;
 
