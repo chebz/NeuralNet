@@ -13,10 +13,6 @@ class Neuron : public Poolable {
 protected:
 	const NeuronSettings &mSettings;
 
-	virtual void addN(const Neuron* N, double weight);
-
-	virtual void stepFunction();
-
 	double getWeight(int iWeight) const;
 
 	double mutate(double weight, double mutationRate);
@@ -30,7 +26,7 @@ public:
 
 	virtual void init(int numInputsPerNeuron, const Neuron *parent, double mutationRate);
 
-	void update(const std::vector<Neuron*> &inputs);
+	void update(const std::vector<double> &inputs);
 
 	double getValue() const { return mValue; }
 };

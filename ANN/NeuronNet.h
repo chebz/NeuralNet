@@ -28,9 +28,9 @@ public:
 
 	void init(const Genome &mum, const Genome &dad, double mutationRate);
 
-	void update(const std::vector<Neuron*> &inputs);
+	void update(const std::vector<double> inputs);
 
-	const std::vector<Neuron*> &getOutputs() const;
+	const std::vector<double> getOutputs() const;
 
 	void free();
 };

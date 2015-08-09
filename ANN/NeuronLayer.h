@@ -30,9 +30,9 @@ public:
 
 	int init(int numInputsPerNeuron, int numNeurons, const NeuronLayer &mum, const NeuronLayer &dad, double mutationRate);
 
-	void update(const std::vector<Neuron*> &inputs);
+	void update(const std::vector<double> &inputs);
 
-	const std::vector<Neuron*> &getNeurons() const { return mpNeurons; }
+	const std::vector<double> getOutputs() const;
 
 	void free();
 };

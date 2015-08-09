@@ -100,19 +100,19 @@ void NeuronNet::init(const Genome &mum, const Genome &dad, double mutationRate) 
 	}
 }
 
-void NeuronNet::update(const std::vector<Neuron*> &inputs) {
+void NeuronNet::update(std::vector<double> inputs) {
 	auto nnSettings = dynamic_cast<const NeuronNetSettings&>(mSettings);
 
-	if (inputs.size() != nnSettings.mNumInputs)
-		return;
+	assert(inputs.size() == nnSettings.mNumInputs);
 
 	for (auto pLayer : mpLayers) {
 		pLayer->update(inputs);
+		inputs = pLayer->getOutputs();
 	}
 }
 
-const std::vector<Neuron*> &NeuronNet::getOutputs() const {
-	return mpLayers[mpLayers.size() - 1]->getNeurons(); 
+const std::vector<double> NeuronNet::getOutputs() const {
+	return mpLayers[mpLayers.size() - 1]->getOutputs();
 }
 
 void NeuronNet::free() {

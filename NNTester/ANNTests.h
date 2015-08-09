@@ -3,8 +3,8 @@
 #include <climits>
 #include <iostream>
 
-#include "NeuronNet.h"
-#include "GeneticAlgorithm.h"
+class GeneticAlgorithm;
+class Neuron;
 
 class ANNTests
 {
@@ -12,7 +12,7 @@ class ANNTests
 
 	const int mPopulationSize;
 
-	void update(const std::vector<Neuron*> &inputs, const std::vector<double> &outputValues);
+	void update(GeneticAlgorithm &ga, const std::vector<Neuron*> &inputs, const std::vector<double> &outputValues);
 
 	void predict(const std::vector<Neuron*> &inputs, GeneticAlgorithm &ga);
 

@@ -75,10 +75,18 @@ int NeuronLayer::init(int numInputsPerNeuron, int numNeurons, const NeuronLayer 
 	return numNeurons;
 }
 
-void NeuronLayer::update(const std::vector<Neuron*> &inputs) {
+void NeuronLayer::update(const std::vector<double> &inputs) {
 	for (auto pNeuron : mpNeurons) {
 		pNeuron->update(inputs);
 	}
+}
+
+const std::vector<double> NeuronLayer::getOutputs() const {
+	std::vector<double> outputs;
+	for (auto pNeuron : mpNeurons) {
+		outputs.push_back(pNeuron->getValue());
+	}
+	return outputs;
 }
 
 void NeuronLayer::free() {

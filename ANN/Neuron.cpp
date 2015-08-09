@@ -17,7 +17,6 @@ double Neuron::mutate(double weight, double mutationRate) {
 }
 
 void Neuron::init(int numInputsPerNeuron) {
-	mValue = 0;
 	mBiasWeight = Utils::getInstance().randomRange(-1.0, 1.0);
 
 	for (int iInput = 0; iInput < numInputsPerNeuron; iInput++) {
@@ -26,8 +25,6 @@ void Neuron::init(int numInputsPerNeuron) {
 }
 
 void Neuron::init(int numInputsPerNeuron, const Neuron *parent, double mutationRate) {
-	mValue = 0;
-
 	if (parent) {
 		mBiasWeight = mutate(parent->mBiasWeight, mutationRate);
 		for (int iInput = 0; iInput < numInputsPerNeuron; iInput++) {
@@ -41,24 +38,15 @@ void Neuron::init(int numInputsPerNeuron, const Neuron *parent, double mutationR
 	}
 }
 
-void Neuron::update(const std::vector<Neuron*> &inputs) {
-	int iWeight = 0;
+void Neuron::update(const std::vector<double> &inputs) {
+	assert(inputs.size() == mWeights.size());
 
-	for (auto pNeuron : inputs) {
-		addN(pNeuron, mWeights[iWeight++]);
+	mValue = 0;
+
+	for (int iInput = 0; iInput < inputs.size(); iInput++) {
+		mValue += inputs[iInput] * mWeights[iInput];
 	}
 
-	stepFunction();
-}
-
-void Neuron::addN(const Neuron* pNeuron, double weight) {
-	if (!pNeuron)
-		return;
-
-	mValue += pNeuron->mValue;
-}
-
-void Neuron::stepFunction() {
 	mValue += mBiasWeight * mSettings.mBias;
 	mValue = 1 / (1 + exp(-mValue));
 }

@@ -1,6 +1,8 @@
 #include "ANNTests.h"
 #include "NeuronNetSettings.h"
 #include "NeuronNetFactory.h"
+#include "NeuronNet.h"
+#include "GeneticAlgorithm.h"
 
 static double calculateFitness(double output, double expected) {
 	double fitness = 0;
@@ -10,13 +12,14 @@ static double calculateFitness(double output, double expected) {
 	return (1.0 / delta) / DBL_MAX;
 }
 
-void ANNTests::update(const std::vector<Neuron*> &inputs, const std::vector<double> &expectedVals) {
-	for (auto pNeuronNet : mPopulation) {
+void ANNTests::update(GeneticAlgorithm &ga, const std::vector<Neuron*> &inputs, const std::vector<double> &expectedVals) {
+	for (auto pGenome : ga.getPopulation()) {
+		auto pNeuronNet = dynamic_cast<NeuronNet*>(pGenome);
 		pNeuronNet->update(inputs);
 		auto outputs = pNeuronNet->getOutputs();
 		double fitness = pNeuronNet->getFitness();
 		for (size_t ipOutput = 0; ipOutput < outputs.size(); ipOutput++) {
-			double outputVal = dynamic_cast<const NDouble*>(outputs[ipOutput])->getValue();
+			double outputVal = outputs[ipOutput]->getValue();
 			fitness += calculateFitness(outputVal, expectedVals[ipOutput]);
 		}
 		pNeuronNet->setFitness(fitness);
@@ -47,7 +50,7 @@ void ANNTests::test1() {
 	GeneticAlgorithmSettings gaSettings(nnSettings.mFactory);
 	GeneticAlgorithm ga(gaSettings);
 
-	NDouble* input1 = new NDouble(0);
+	Neuron* input1 = new Neuron(0);
 	std::vector<N*> inputs = { input1 };	
 
 	std::cout << "Learning...\n";
