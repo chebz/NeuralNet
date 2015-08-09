@@ -5,7 +5,7 @@ Poolable::Poolable(ObjectPool &pool) : mPool(pool), mFree(true) {}
 void Poolable::free() {
 	if (!mFree) {
 		mFree = true;
-		mPool.free(*this);
+		mPool.freeInstance(*this);
 	}
 }
 

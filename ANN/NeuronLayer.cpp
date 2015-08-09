@@ -1,12 +1,13 @@
 #include "NeuronLayer.h"
+#include "NeuronNetSettings.h"
 
 NeuronLayer::NeuronLayer(ObjectPool &pool, const NeuronLayerSettings &settings) :
-Poolable(pool), ObjectPool(settings.mNeuronFactory, settings.mNumNeuronsPerLayerMax), mSettings(settings) {
+Poolable(pool), ObjectPool(settings.mNSettings.mFactory, settings.mNumNeuronsPerLayerMax), mSettings(settings) {
 
 }
 
 NeuronLayer::~NeuronLayer() {
-	for (auto pNeuron : mNeurons) {
+	for (auto pNeuron : mpNeurons) {
 		delete pNeuron;
 	}
 }
@@ -14,13 +15,13 @@ NeuronLayer::~NeuronLayer() {
 Neuron &NeuronLayer::addNeuron() {
 	Neuron* pNeuron = dynamic_cast<Neuron*>(getInstance());
 	assert(pNeuron);
-	mNeurons.push_back(pNeuron);
+	mpNeurons.push_back(pNeuron);
 	return *pNeuron;
 }
 
-Neuron *NeuronLayer::getNeuron(int iNeuron) const {
-	if (mNeurons.size() > iNeuron)
-		return mNeurons[iNeuron];
+Neuron *NeuronLayer::getNeuron(int iN) const {
+	if (mpNeurons.size() > iN)
+		return mpNeurons[iN];
 	return nullptr;
 }
 
@@ -31,7 +32,7 @@ int NeuronLayer::init(int numInputsPerNeuron) {
 }
 
 int NeuronLayer::init(int numInputsPerNeuron, int numNeurons) {
-	for (int iNeuron = 0; iNeuron < numNeurons; iNeuron++) {
+	for (int iN = 0; iN < numNeurons; iN++) {
 		addNeuron().init(numInputsPerNeuron);
 	}
 	return numNeurons;
@@ -39,9 +40,9 @@ int NeuronLayer::init(int numInputsPerNeuron, int numNeurons) {
 
 int NeuronLayer::init(int numInputsPerNeuron, const NeuronLayer *parent, double mutationRate) {
 	if (parent) {
-		int numNeurons = clamp(parent->mNeurons.size() + neuronMutation(), mSettings.mNumNeuronsPerLayerMin, mSettings.mNumNeuronsPerLayerMax);
-		for (int iNeuron = 0; iNeuron < numNeurons; iNeuron++) {
-			addNeuron().init(numInputsPerNeuron, parent->getNeuron(iNeuron), mutationRate);
+		int numNeurons = clamp(parent->mpNeurons.size() + NMutation(), mSettings.mNumNeuronsPerLayerMin, mSettings.mNumNeuronsPerLayerMax);
+		for (int iN = 0; iN < numNeurons; iN++) {
+			addNeuron().init(numInputsPerNeuron, parent->getNeuron(iN), mutationRate);
 		}
 		return numNeurons;
 	}		
@@ -58,24 +59,31 @@ int NeuronLayer::init(int numInputsPerNeuron, const NeuronLayer *mum, const Neur
 	if (!mum && !dad)
 		return init(numInputsPerNeuron);
 
-	int numNeurons = UTILS.randomRange(static_cast<int>(mum->mNeurons.size()), static_cast<int>(dad->mNeurons.size())) + neuronMutation();
+	int numNeurons = UTILS.randomRange(static_cast<int>(mum->mpNeurons.size()), static_cast<int>(dad->mpNeurons.size())) + NMutation();
 	return init(numInputsPerNeuron, numNeurons, *mum, *dad, mutationRate);
 }
 
 int NeuronLayer::init(int numInputsPerNeuron, int numNeurons, const NeuronLayer &mum, const NeuronLayer &dad, double mutationRate) {
 	int iSplit = UTILS.random(numNeurons);
 
-	for (int iNeuron = 0; iNeuron < numNeurons; iNeuron++) {
-		if (iNeuron < iSplit)
-			addNeuron().init(numInputsPerNeuron, mum.getNeuron(iNeuron), mutationRate);
+	for (int iN = 0; iN < numNeurons; iN++) {
+		if (iN < iSplit)
+			addNeuron().init(numInputsPerNeuron, mum.getNeuron(iN), mutationRate);
 		else
-			addNeuron().init(numInputsPerNeuron, dad.getNeuron(iNeuron), mutationRate);
+			addNeuron().init(numInputsPerNeuron, dad.getNeuron(iN), mutationRate);
 	}
 	return numNeurons;
 }
 
 void NeuronLayer::update(const std::vector<Neuron*> &inputs) {
-	for (auto pNeuron : mNeurons) {
+	for (auto pNeuron : mpNeurons) {
 		pNeuron->update(inputs);
 	}
+}
+
+void NeuronLayer::free() {
+	for (auto pNeuron : mpNeurons) {
+		pNeuron->free();
+	}
+	mpNeurons.clear();
 }

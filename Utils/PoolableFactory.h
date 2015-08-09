@@ -2,6 +2,7 @@
 #include "Poolable.h"
 
 class Poolable;
+class ObjectPool;
 
 class PoolableFactory {
 

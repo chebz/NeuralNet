@@ -1,5 +1,13 @@
 #include "Genome.h"
 
+Genome::Genome(ObjectPool &pool, const GenomeSettings &settings) :
+	Poolable(pool), mSettings(settings), mFitness(0) {
+	init();
+}
+
+Genome::~Genome() {
+}
+
 void Genome::init() {
 	mIsParent = true;
 }

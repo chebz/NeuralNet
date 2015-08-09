@@ -1,9 +1,14 @@
 #pragma once
 #include "NeuronFactory.h"
-class NeuronFactoryDouble :	public NeuronFactory
-{
+#include "NeuronDouble.h"
+
+struct NeuronDoubleSettings;
+
+class NeuronFactoryDouble :	public NeuronFactory {
+	const NeuronDoubleSettings *mSettings;
+
 public:
-	NeuronFactoryDouble();
+	NeuronFactoryDouble(const NeuronDoubleSettings *settings);
 
 	Poolable *create(ObjectPool &pool) const;
 };

@@ -1,4 +1,6 @@
 #include "ANNTests.h"
+#include "NeuronNetSettings.h"
+#include "NeuronNetFactory.h"
 
 static double calculateFitness(double output, double expected) {
 	double fitness = 0;
@@ -8,60 +10,45 @@ static double calculateFitness(double output, double expected) {
 	return (1.0 / delta) / DBL_MAX;
 }
 
-void ANNTests::generatePopulation(const NeuronFactory &factory, const NeuralNetSettings &nnSettings, GeneticAlgorithm &ga) {
-	for (int i = 0; i < mPopulationSize; i++) {
-		auto nn = new NeuralNet(nnSettings, factory);
-		mPopulation.push_back(nn);
-		ga.addGenome(nn);
-	}
-}
-
-void ANNTests::destroyPopulation() {
-	for (auto pNN : mPopulation) {
-		delete pNN;
-	}
-	mPopulation.clear();
-}
-
 void ANNTests::update(const std::vector<Neuron*> &inputs, const std::vector<double> &expectedVals) {
-	for (auto pNN : mPopulation) {
-		pNN->update(inputs);
-		auto outputs = pNN->getOutputs();
-		double fitness = pNN->getFitness();
+	for (auto pNeuronNet : mPopulation) {
+		pNeuronNet->update(inputs);
+		auto outputs = pNeuronNet->getOutputs();
+		double fitness = pNeuronNet->getFitness();
 		for (size_t ipOutput = 0; ipOutput < outputs.size(); ipOutput++) {
-			double outputVal = dynamic_cast<const NeuronDouble*>(outputs[ipOutput])->getValue();
+			double outputVal = dynamic_cast<const NDouble*>(outputs[ipOutput])->getValue();
 			fitness += calculateFitness(outputVal, expectedVals[ipOutput]);
 		}
-		pNN->setFitness(fitness);
+		pNeuronNet->setFitness(fitness);
 	}
 }
 
 void ANNTests::predict(const std::vector<Neuron*> &inputs, GeneticAlgorithm &ga) {
-	Genome *topGenome = *ga.getPopulation().begin();
-	NeuralNet *pNN = dynamic_cast<NeuralNet*>(topGenome);
-	pNN->update(inputs);
-	auto outputNeurons = pNN->getOutputs();
+	/*Genome *topGenome = *ga.getPopulation().begin();
+	NeuronNet *pNeuronNet = dynamic_cast<NeuronNet*>(topGenome);
+	pNeuronNet->update(inputs);
+	auto outputNs = pNeuronNet->getOutputs();*/
 
 }
 
 void ANNTests::test1() {
 	std::cout << "Running test 1...\n";
 
-	NeuralNetSettings nnSettings;
-	nnSettings.numHiddenLayers = 1;
+	NeuronSettings nSettings;
+	NeuronLayerSettings layerSettings(nSettings);
+	NeuronNetSettings nnSettings(layerSettings);
+	
 	nnSettings.mNumInputs = 1;
-	nnSettings.numNeuronsPerHidden = 1;
 	nnSettings.mNumOutputs = 1;
-
-	NeuronFactoryDouble factory(-1.0);
-	GeneticAlgorithmSettings gaSettings;
+	nnSettings.mNumLayersMin = 1;
+	nnSettings.mNumLayersMax = 1;
+	nnSettings.mNumLayersPertrubation = 0;
+	
+	GeneticAlgorithmSettings gaSettings(nnSettings.mFactory);
 	GeneticAlgorithm ga(gaSettings);
 
-	std::cout << "Generating population...\n";
-	generatePopulation(factory, nnSettings, ga);
-
-	NeuronDouble* input1 = new NeuronDouble(0);
-	std::vector<Neuron*> inputs = { input1 };	
+	NDouble* input1 = new NDouble(0);
+	std::vector<N*> inputs = { input1 };	
 
 	std::cout << "Learning...\n";
 	for (int iEpoch = 0; iEpoch < mNumEpochs; iEpoch++) {
@@ -83,5 +70,4 @@ void ANNTests::test1() {
 
 	
 	delete input1;
-	destroyPopulation();
 }

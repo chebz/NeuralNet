@@ -1,7 +1,11 @@
 #include "GeneticAlgorithm.h"
 
 GeneticAlgorithm::GeneticAlgorithm(const GeneticAlgorithmSettings &settings) :
-	ObjectPool(settings.mGenomeFactory, settings.mMaxPopulation * 2), mSettings(settings) {}
+	ObjectPool(settings.mGenomeFactory, settings.mMaxPopulation * 2), mSettings(settings) {
+	for (int iGenome = 0; iGenome < settings.mMaxPopulation; iGenome++) {
+		addGenome();
+	}
+}
 
 Genome *GeneticAlgorithm::addGenome() {
 	Genome *pGenome = dynamic_cast<Genome*>(getInstance());
@@ -53,8 +57,6 @@ void GeneticAlgorithm::epoch() {
 			++it;
 		}
 	}
-
-	//if (Utils::getInstance().random01() < mSettings.crossoverRate)
 }
 
 Genome *GeneticAlgorithm::rouletteSelect() {

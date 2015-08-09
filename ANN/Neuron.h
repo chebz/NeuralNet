@@ -1,17 +1,21 @@
 #pragma once
 #include "stdafx.h"
 
+struct NeuronSettings;
+
 class Neuron : public Poolable {
+	double mValue;
+
+	double mBiasWeight;
+
 	std::vector<double> mWeights;
 
 protected:
 	const NeuronSettings &mSettings;
 
-	virtual void reset() = 0;
+	virtual void addN(const Neuron* N, double weight);
 
-	virtual void addNeuron(const Neuron* neuron, double weight) = 0;
-
-	virtual void stepFunction() = 0;
+	virtual void stepFunction();
 
 	double getWeight(int iWeight) const;
 
@@ -27,4 +31,6 @@ public:
 	virtual void init(int numInputsPerNeuron, const Neuron *parent, double mutationRate);
 
 	void update(const std::vector<Neuron*> &inputs);
+
+	double getValue() const { return mValue; }
 };

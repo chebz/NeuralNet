@@ -10,7 +10,7 @@ class ObjectPool
 
 	std::stack<Poolable*> mObjectsFree;
 
-	void free(Poolable &pPoolable);
+	void freeInstance(Poolable &pPoolable);
 
 public:
 	ObjectPool(const PoolableFactory &pFactory, int numObjects);

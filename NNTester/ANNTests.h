@@ -3,8 +3,7 @@
 #include <climits>
 #include <iostream>
 
-#include "NeuralNet.h"
-#include "NeuronDouble.h"
+#include "NeuronNet.h"
 #include "GeneticAlgorithm.h"
 
 class ANNTests
@@ -12,12 +11,6 @@ class ANNTests
 	const int mNumEpochs;
 
 	const int mPopulationSize;
-
-	std::vector<NeuralNet*> mPopulation;
-
-	void generatePopulation(const NeuronFactory &factory, const NeuralNetSettings &settings, GeneticAlgorithm &ga);
-
-	void destroyPopulation();
 
 	void update(const std::vector<Neuron*> &inputs, const std::vector<double> &outputValues);
 

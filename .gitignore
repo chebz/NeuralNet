@@ -3,4 +3,6 @@
 *ipch/
 *.user
 *.filters
+*.opensdf
+*.suo
 

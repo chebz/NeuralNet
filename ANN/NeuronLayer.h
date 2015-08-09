@@ -2,26 +2,27 @@
 #include "stdafx.h"
 
 class Neuron;
+struct NeuronLayerSettings;
 
 class NeuronLayer : public Poolable, public ObjectPool {
 	const NeuronLayerSettings &mSettings;
 
-	std::vector<Neuron*> mNeurons;
+	std::vector<Neuron*> mpNeurons;
 
 	Neuron &addNeuron();
 
 	Neuron *getNeuron(int iNeuron) const;
 
-	int neuronMutation() const { return 0; } //TODO
+	int NMutation() const { return 0; } //TODO
 
 public:
 	NeuronLayer(ObjectPool &pool, const NeuronLayerSettings &settings);
 
 	~NeuronLayer();
 
-	int init(int numInputsPerNeuron);
+	int init(int numInputsPerNeuroneuron);
 
-	int init(int numInputsPerNeuron, int numNeurons);
+	int init(int numInputsPerNeuroneuron, int numNeurons);
 
 	int init(int numInputsPerNeuron, const NeuronLayer *parent, double mutationRate);
 
@@ -31,5 +32,7 @@ public:
 
 	void update(const std::vector<Neuron*> &inputs);
 
-	const std::vector<Neuron*> &getNeurons() const { return mNeurons; }
+	const std::vector<Neuron*> &getNeurons() const { return mpNeurons; }
+
+	void free();
 };

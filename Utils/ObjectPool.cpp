@@ -2,7 +2,7 @@
 
 ObjectPool::ObjectPool(const PoolableFactory &pFactory, int numObjects) {
 	for (size_t iObject = 0; iObject < numObjects; iObject++) {
-		mObjectsFree.push(pFactory.create(this));
+		mObjectsFree.push(pFactory.create(*this));
 	}
 }
 
@@ -12,7 +12,7 @@ ObjectPool::~ObjectPool() {
 	}
 }
 
-void ObjectPool::free(Poolable &pPoolable) {
+void ObjectPool::freeInstance(Poolable &pPoolable) {
 	mObjectsFree.push(&pPoolable);
 }
 

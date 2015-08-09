@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 
+struct GenomeSettings;
+
 class Genome : public Poolable {
 	friend class GeneticAlgorithm;
 
@@ -9,9 +11,11 @@ private:
 	bool mIsParent;
 
 protected:
+	const GenomeSettings &mSettings;
+
 	double mFitness;
 
-	Genome(ObjectPool &pool) : Poolable(pool), mFitness(0) {}
+	Genome(ObjectPool &pool, const GenomeSettings &settings);
 
 public:
 	virtual ~Genome() = 0;
