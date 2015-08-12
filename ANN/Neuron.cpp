@@ -32,6 +32,7 @@ void Neuron::init(int numInputsPerNeuron, const Neuron *parent, double mutationR
 		}
 	}
 	else {
+		mBiasWeight = mutate(0, mutationRate);
 		for (int iInput = 0; iInput < numInputsPerNeuron; iInput++) {
 			mWeights.push_back(mutate(0, mutationRate));
 		}
@@ -48,5 +49,10 @@ void Neuron::update(const std::vector<double> &inputs) {
 	}
 
 	mValue += mBiasWeight * mSettings.mBias;
-	mValue = 1 / (1 + exp(-mValue));
+	mValue = 1 / (1 + exp(-mValue / mSettings.mActivationResponse));
+}
+
+void Neuron::free() {
+	mWeights.clear();
+	Poolable::free();
 }

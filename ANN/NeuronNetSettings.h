@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include "stdafx.h"
 #include "NeuronFactory.h"
 #include "NeuronLayerFactory.h"
@@ -7,6 +8,7 @@
 struct NeuronSettings {
 	double mWeightPerturbation;
 	double mBias;
+	double mActivationResponse;
 
 	const NeuronFactory mFactory;
 

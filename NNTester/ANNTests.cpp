@@ -1,3 +1,4 @@
+#include <functional>
 #include "ANNTests.h"
 #include "NeuronNetSettings.h"
 #include "NeuronNetFactory.h"
@@ -7,31 +8,52 @@
 static double calculateFitness(double output, double expected) {
 	double fitness = 0;
 	double delta = abs(output - expected);
-	if (delta == 0)
-		return 1.0;
-	return (1.0 / delta) / DBL_MAX;
+	return 1 - delta;
 }
 
-void ANNTests::update(GeneticAlgorithm &ga, const std::vector<Neuron*> &inputs, const std::vector<double> &expectedVals) {
+void ANNTests::learnPopulation(GeneticAlgorithm &ga, const std::vector<double> &inputs, const std::vector<double> &expected) {
 	for (auto pGenome : ga.getPopulation()) {
-		auto pNeuronNet = dynamic_cast<NeuronNet*>(pGenome);
-		pNeuronNet->update(inputs);
-		auto outputs = pNeuronNet->getOutputs();
-		double fitness = pNeuronNet->getFitness();
-		for (size_t ipOutput = 0; ipOutput < outputs.size(); ipOutput++) {
-			double outputVal = outputs[ipOutput]->getValue();
-			fitness += calculateFitness(outputVal, expectedVals[ipOutput]);
-		}
-		pNeuronNet->setFitness(fitness);
+		auto pNN = dynamic_cast<NeuronNet*>(pGenome);
+		learnNN(pNN, inputs, expected);
 	}
 }
 
-void ANNTests::predict(const std::vector<Neuron*> &inputs, GeneticAlgorithm &ga) {
-	/*Genome *topGenome = *ga.getPopulation().begin();
-	NeuronNet *pNeuronNet = dynamic_cast<NeuronNet*>(topGenome);
-	pNeuronNet->update(inputs);
-	auto outputNs = pNeuronNet->getOutputs();*/
+void ANNTests::learnNN(NeuronNet* pNN, const std::vector<double> &inputs, const std::vector<double> &expected) {
+	pNN->update(inputs);
+	auto outputs = pNN->getOutputs();
+	assert(outputs.size() == expected.size());
+	double tempFitness = pNN->getFitness();
+	for (size_t ipOutput = 0; ipOutput < outputs.size(); ipOutput++) {
+		tempFitness += calculateFitness(outputs[ipOutput], expected[ipOutput]);
+	}
+	pNN->setFitness(tempFitness);
+}
 
+std::vector<double> ANNTests::predict(GeneticAlgorithm &ga, const std::vector<double> &inputs) {
+	auto pNN = dynamic_cast<NeuronNet*>(*ga.getSortedPopulation().begin());
+	pNN->update(inputs);
+	return pNN->getOutputs();
+}
+
+void ANNTests::testRandomRange() {
+	std::cout << "testing random range function...\n";
+
+	double min = -1.0;
+	double max = 1.0;
+	double result = 0.0;
+	double resultMin = 0.0;
+	double resultMax = 0.0;
+
+	for (int x = 0; x <= 1000; x++) {
+		result = Utils::getInstance().randomRange(min, max);
+		if (result > resultMax)
+			resultMax = result;
+		if (result < resultMin)
+			resultMin = result;
+		std::cout << result << "\n";
+	}
+
+	std::cout << "Min: " << resultMin << ", Max: " << resultMax << "\n";
 }
 
 void ANNTests::test1() {
@@ -39,28 +61,34 @@ void ANNTests::test1() {
 
 	NeuronSettings nSettings;
 	NeuronLayerSettings layerSettings(nSettings);
+	layerSettings.mNumNeuronsPerLayerMin = 2;
+	layerSettings.mNumNeuronsPerLayerMax = 2;
+
 	NeuronNetSettings nnSettings(layerSettings);
-	
+
 	nnSettings.mNumInputs = 1;
 	nnSettings.mNumOutputs = 1;
-	nnSettings.mNumLayersMin = 1;
-	nnSettings.mNumLayersMax = 1;
-	nnSettings.mNumLayersPertrubation = 0;
-	
+	nnSettings.mNumLayersMin = 2;
+	nnSettings.mNumLayersMax = 2;
+
 	GeneticAlgorithmSettings gaSettings(nnSettings.mFactory);
+	gaSettings.mMaxPopulation = 100;
+
 	GeneticAlgorithm ga(gaSettings);
 
-	Neuron* input1 = new Neuron(0);
-	std::vector<N*> inputs = { input1 };	
+	std::vector<double> inputs = { 0 };
+	std::vector<double> expected = { 0 };
+
+	int mNumEpochs = 100;
 
 	std::cout << "Learning...\n";
 	for (int iEpoch = 0; iEpoch < mNumEpochs; iEpoch++) {
-		std::cout << "Epoch: " << iEpoch + 1 << " / " << mNumEpochs << "\t";		
+		std::cout << "Epoch: " << iEpoch + 1 << " / " << mNumEpochs << "\t";
 
-		for (int x = 0; x < 100; x++) {
-			double val = static_cast<double>(x);
-			input1->setValue(val);
-			update(inputs, { val });
+		for (int x = 0; x <= 100; x++) {
+			inputs[0] = static_cast<double>(x) / 100.0;
+			expected[0] = static_cast<double>(x) / 100.0;
+			learnPopulation(ga, inputs, expected);
 		}
 
 		std::cout << "Average: " << ga.getAverageFitness() << "\t";
@@ -69,8 +97,12 @@ void ANNTests::test1() {
 
 		ga.epoch();
 	}
+
 	std::cout << "Predicting...\n";
 
-	
-	delete input1;
+	for (int x = 0; x <= 100; x++) {
+		inputs[0] = static_cast<double>(x) / 100.0;
+		auto outputs = predict(ga, inputs);
+		std::cout << "Input:\t" << inputs[0] << "\t\tOutput:\t" << outputs[0] << "\n";
+	}
 }

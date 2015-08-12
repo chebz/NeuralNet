@@ -6,7 +6,6 @@ NeuronNetFactory::NeuronNetFactory(const NeuronNetSettings &nnSettings) :
 	GenomeFactory(nnSettings) {}
 
 Poolable *NeuronNetFactory::create(ObjectPool &pool) const {
-	auto nnSettings = dynamic_cast<const NeuronNetSettings&>(mSettings);
-	NeuronNet *nn = new NeuronNet(pool, nnSettings);
+	NeuronNet *nn = new NeuronNet(pool, dynamic_cast<const NeuronNetSettings&>(mSettings));
 	return nn;
 }

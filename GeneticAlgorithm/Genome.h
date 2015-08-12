@@ -8,6 +8,7 @@ class Genome : public Poolable {
 
 private:
 	int mOrder;
+
 	bool mIsParent;
 
 protected:
@@ -26,9 +27,7 @@ public:
 
 	virtual void init(const Genome &mum, const Genome &dad, double mutationRate);
 
-	friend bool operator < (const Genome& lhs, const Genome& rhs) {
-		return (lhs.mFitness < rhs.mFitness);
-	}
+	virtual void free();
 
 	void setFitness(double fitness);
 

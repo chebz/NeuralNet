@@ -5,19 +5,20 @@
 
 class GeneticAlgorithm;
 class Neuron;
+class NeuronNet;
 
-class ANNTests
-{
-	const int mNumEpochs;
+class ANNTests {
 
-	const int mPopulationSize;
+	void learnPopulation(GeneticAlgorithm &ga, const std::vector<double> &inputs, const std::vector<double> &expected);
 
-	void update(GeneticAlgorithm &ga, const std::vector<Neuron*> &inputs, const std::vector<double> &outputValues);
+	void learnNN(NeuronNet* pNN, const std::vector<double> &inputs, const std::vector<double> &expected);
 
-	void predict(const std::vector<Neuron*> &inputs, GeneticAlgorithm &ga);
+	std::vector<double> predict(GeneticAlgorithm &ga, const std::vector<double> &inputs);
 
 public:
-	ANNTests() : mNumEpochs(100), mPopulationSize(100) {}
+	ANNTests() {}
+
+	void testRandomRange();
 
 	void test1();
 };

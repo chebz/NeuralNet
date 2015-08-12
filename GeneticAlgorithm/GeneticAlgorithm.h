@@ -7,9 +7,11 @@ class GeneticAlgorithm : public ObjectPool
 
 	const GeneticAlgorithmSettings mSettings;
 
-	std::multiset<Genome*> mPopulation;
+	std::vector<Genome*> mPopulation;
 
 	double mTotalFitness;
+
+	bool sorted;
 
 	Genome *rouletteSelect();
 
@@ -18,6 +20,8 @@ class GeneticAlgorithm : public ObjectPool
 	Genome *cross(const Genome &mum, const Genome &dad);
 
 	Genome *cross(const Genome &parent);
+
+	void sort();
 
 public:
 	GeneticAlgorithm(const GeneticAlgorithmSettings &settings);
@@ -28,10 +32,12 @@ public:
 
 	double getAverageFitness() const;
 
-	double getBestFitness() const;
+	double getBestFitness();
 
-	double getWorstFitness() const;
+	double getWorstFitness();
 
-	const std::multiset<Genome*> &getPopulation() const;
+	const std::vector<Genome*> &getPopulation() const;
+
+	const std::vector<Genome*> &getSortedPopulation();
 };
 

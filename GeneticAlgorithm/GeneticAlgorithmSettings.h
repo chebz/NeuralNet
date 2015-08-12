@@ -16,6 +16,7 @@ struct GeneticAlgorithmSettings {
 		mMutationRate(0.1),
 		mCrossoverRate(0.7),
 		mMateThreshold(5),
+		mMaxPopulation(100),
 		mGenomeFactory(genomeFactory) {}
 };
 

@@ -28,7 +28,7 @@ NeuronLayer *NeuronNet::getLayer(int iLayer) const {
 }
 
 void NeuronNet::init() {
-	auto nnSettings = dynamic_cast<const NeuronNetSettings&>(mSettings);
+	auto& nnSettings = dynamic_cast<const NeuronNetSettings&>(mSettings);
 
 	int numLayers = UTILS.randomRange(nnSettings.mNumLayersMin, nnSettings.mNumLayersMax);
 	int numNeurons = 0;
@@ -36,7 +36,7 @@ void NeuronNet::init() {
 	if (numLayers > 0) {
 		numNeurons = addLayer().init(nnSettings.mNumInputs);
 
-		for (int iHiddenLayer = 0; iHiddenLayer < numLayers; iHiddenLayer++) {
+		for (int iHiddenLayer = 0; iHiddenLayer < numLayers-1; iHiddenLayer++) {
 			numNeurons = addLayer().init(numNeurons);
 		}
 				
@@ -45,11 +45,12 @@ void NeuronNet::init() {
 	else {
 		mpOutputLayer->init(nnSettings.mNumInputs, nnSettings.mNumOutputs);
 	}
+	Genome::init();
 }
 
 void NeuronNet::init(const Genome &parent, double mutationRate) {
-	auto nnParent = dynamic_cast<const NeuronNet&>(parent);
-	auto nnSettings = dynamic_cast<const NeuronNetSettings&>(mSettings);
+	auto& nnParent = dynamic_cast<const NeuronNet&>(parent);
+	auto& nnSettings = dynamic_cast<const NeuronNetSettings&>(mSettings);
 
 	UINT numLayers = nnParent.mpLayers.size() + layerMutation();
 	numLayers = clamp(numLayers, nnSettings.mNumLayersMin, nnSettings.mNumLayersMax);
@@ -61,22 +62,23 @@ void NeuronNet::init(const Genome &parent, double mutationRate) {
 		numNeurons = addLayer().init(nnSettings.mNumInputs, nnParent.getLayer(iLayer), mutationRate);
 		iLayer++;
 
-		for (int iHiddenLayer = 0; iHiddenLayer < numLayers; iHiddenLayer++) {
+		for (int iHiddenLayer = 0; iHiddenLayer < numLayers-1; iHiddenLayer++) {
 			numNeurons = addLayer().init(numNeurons, nnParent.getLayer(iLayer), mutationRate);
 			iLayer++;
 		}
 
-		addLayer().init(numNeurons, nnSettings.mNumOutputs);
+		mpOutputLayer->init(numNeurons, nnSettings.mNumOutputs, *nnParent.mpOutputLayer, mutationRate);
 	}
 	else {
-		addLayer().init(nnSettings.mNumInputs, nnSettings.mNumOutputs);
+		mpOutputLayer->init(nnSettings.mNumInputs, nnSettings.mNumOutputs, *nnParent.mpOutputLayer, mutationRate);
 	}
+	Genome::init(parent, mutationRate);
 }
 
 void NeuronNet::init(const Genome &mum, const Genome &dad, double mutationRate) {
-	auto nnMum = dynamic_cast<const NeuronNet&>(mum);
-	auto nnDad = dynamic_cast<const NeuronNet&>(dad);
-	auto nnSettings = dynamic_cast<const NeuronNetSettings&>(mSettings);
+	auto& nnMum = dynamic_cast<const NeuronNet&>(mum);
+	auto& nnDad = dynamic_cast<const NeuronNet&>(dad);
+	auto& nnSettings = dynamic_cast<const NeuronNetSettings&>(mSettings);
 
 	UINT numLayers = UTILS.randomRange(static_cast<int>(nnMum.mpLayers.size()), static_cast<int>(nnDad.mpLayers.size())) + layerMutation();
 	numLayers = clamp(numLayers, nnSettings.mNumLayersMin, nnSettings.mNumLayersMax);
@@ -88,36 +90,42 @@ void NeuronNet::init(const Genome &mum, const Genome &dad, double mutationRate) 
 		numNeurons = addLayer().init(nnSettings.mNumInputs, nnMum.getLayer(iLayer), nnDad.getLayer(iLayer), mutationRate);
 		iLayer++;
 
-		for (int iHiddenLayer = 0; iHiddenLayer < numLayers; iHiddenLayer++) {
+		for (int iHiddenLayer = 0; iHiddenLayer < numLayers-1; iHiddenLayer++) {
 			numNeurons = addLayer().init(numNeurons, nnMum.getLayer(iLayer), nnDad.getLayer(iLayer), mutationRate);
 			iLayer++;
 		}
 
-		addLayer().init(numNeurons, nnSettings.mNumOutputs);
+		mpOutputLayer->init(numNeurons, nnSettings.mNumOutputs, *nnMum.mpOutputLayer, *nnDad.mpOutputLayer, mutationRate);
 	}
 	else {
-		addLayer().init(nnSettings.mNumInputs, nnSettings.mNumOutputs);
+		mpOutputLayer->init(nnSettings.mNumInputs, nnSettings.mNumOutputs, *nnMum.mpOutputLayer, *nnDad.mpOutputLayer, mutationRate);
 	}
+	Genome::init(mum, dad, mutationRate);
 }
 
 void NeuronNet::update(std::vector<double> inputs) {
-	auto nnSettings = dynamic_cast<const NeuronNetSettings&>(mSettings);
+	auto& nnSettings = dynamic_cast<const NeuronNetSettings&>(mSettings);
 
 	assert(inputs.size() == nnSettings.mNumInputs);
 
-	for (auto pLayer : mpLayers) {
+	for (auto &pLayer : mpLayers) {
 		pLayer->update(inputs);
 		inputs = pLayer->getOutputs();
 	}
+
+	mpOutputLayer->update(inputs);
+	inputs = mpOutputLayer->getOutputs();
 }
 
 const std::vector<double> NeuronNet::getOutputs() const {
-	return mpLayers[mpLayers.size() - 1]->getOutputs();
+	return mpOutputLayer->getOutputs();
 }
 
 void NeuronNet::free() {
-	for (auto pLayer : mpLayers) {
+	for (auto &pLayer : mpLayers) {
 		pLayer->free();
 	}
 	mpLayers.clear();
+	mpOutputLayer->free();
+	Genome::free();
 }

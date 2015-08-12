@@ -29,4 +29,6 @@ public:
 	void update(const std::vector<double> &inputs);
 
 	double getValue() const { return mValue; }
+
+	void free();
 };

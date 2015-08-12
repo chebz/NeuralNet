@@ -22,13 +22,15 @@ public:
 
 	int init(int numInputsPerNeuroneuron);
 
-	int init(int numInputsPerNeuroneuron, int numNeurons);
+	int init(int numInputsPerNeuroneuron, UINT numNeurons);
 
 	int init(int numInputsPerNeuron, const NeuronLayer *parent, double mutationRate);
 
+	int init(int numInputsPerNeuron, UINT numNeurons, const NeuronLayer &parent, double mutationRate);
+
 	int init(int numInputsPerNeuron, const NeuronLayer *mum, const NeuronLayer *dad, double mutationRate);
 
-	int init(int numInputsPerNeuron, int numNeurons, const NeuronLayer &mum, const NeuronLayer &dad, double mutationRate);
+	int init(int numInputsPerNeuron, UINT numNeurons, const NeuronLayer &mum, const NeuronLayer &dad, double mutationRate);
 
 	void update(const std::vector<double> &inputs);
 

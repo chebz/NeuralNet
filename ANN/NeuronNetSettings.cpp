@@ -3,6 +3,7 @@
 NeuronSettings::NeuronSettings() :
 	mWeightPerturbation(0.3),
 	mBias(-1),
+	mActivationResponse(0.2),
 	mFactory(*this) {}
 
 NeuronLayerSettings::NeuronLayerSettings(const NeuronSettings &NSettings) :

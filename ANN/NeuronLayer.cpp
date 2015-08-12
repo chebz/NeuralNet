@@ -19,9 +19,9 @@ Neuron &NeuronLayer::addNeuron() {
 	return *pNeuron;
 }
 
-Neuron *NeuronLayer::getNeuron(int iN) const {
-	if (mpNeurons.size() > iN)
-		return mpNeurons[iN];
+Neuron *NeuronLayer::getNeuron(int iNeurom) const {
+	if (mpNeurons.size() > iNeurom)
+		return mpNeurons[iNeurom];
 	return nullptr;
 }
 
@@ -31,8 +31,8 @@ int NeuronLayer::init(int numInputsPerNeuron) {
 	return numNeurons;
 }
 
-int NeuronLayer::init(int numInputsPerNeuron, int numNeurons) {
-	for (int iN = 0; iN < numNeurons; iN++) {
+int NeuronLayer::init(int numInputsPerNeuron, UINT numNeurons) {
+	for (int iNeurom = 0; iNeurom < numNeurons; iNeurom++) {
 		addNeuron().init(numInputsPerNeuron);
 	}
 	return numNeurons;
@@ -40,13 +40,18 @@ int NeuronLayer::init(int numInputsPerNeuron, int numNeurons) {
 
 int NeuronLayer::init(int numInputsPerNeuron, const NeuronLayer *parent, double mutationRate) {
 	if (parent) {
-		int numNeurons = clamp(parent->mpNeurons.size() + NMutation(), mSettings.mNumNeuronsPerLayerMin, mSettings.mNumNeuronsPerLayerMax);
-		for (int iN = 0; iN < numNeurons; iN++) {
-			addNeuron().init(numInputsPerNeuron, parent->getNeuron(iN), mutationRate);
-		}
-		return numNeurons;
+		UINT numNeurons = parent->mpNeurons.size() + NMutation();
+		numNeurons = clamp(numNeurons, mSettings.mNumNeuronsPerLayerMin, mSettings.mNumNeuronsPerLayerMax);
+		return init(numInputsPerNeuron, numNeurons, *parent, mutationRate);
 	}		
 	return init(numInputsPerNeuron);
+}
+
+int NeuronLayer::init(int numInputsPerNeuron, UINT numNeurons, const NeuronLayer &parent, double mutationRate) {
+	for (int iNeurom = 0; iNeurom < numNeurons; iNeurom++) {
+		addNeuron().init(numInputsPerNeuron, parent.getNeuron(iNeurom), mutationRate);
+	}
+	return numNeurons;
 }
 
 int NeuronLayer::init(int numInputsPerNeuron, const NeuronLayer *mum, const NeuronLayer *dad, double mutationRate) {
@@ -59,18 +64,19 @@ int NeuronLayer::init(int numInputsPerNeuron, const NeuronLayer *mum, const Neur
 	if (!mum && !dad)
 		return init(numInputsPerNeuron);
 
-	int numNeurons = UTILS.randomRange(static_cast<int>(mum->mpNeurons.size()), static_cast<int>(dad->mpNeurons.size())) + NMutation();
+	UINT numNeurons = UTILS.randomRange(static_cast<int>(mum->mpNeurons.size()), static_cast<int>(dad->mpNeurons.size())) + NMutation();
+	numNeurons = clamp(numNeurons, mSettings.mNumNeuronsPerLayerMin, mSettings.mNumNeuronsPerLayerMax);
 	return init(numInputsPerNeuron, numNeurons, *mum, *dad, mutationRate);
 }
 
-int NeuronLayer::init(int numInputsPerNeuron, int numNeurons, const NeuronLayer &mum, const NeuronLayer &dad, double mutationRate) {
+int NeuronLayer::init(int numInputsPerNeuron, UINT numNeurons, const NeuronLayer &mum, const NeuronLayer &dad, double mutationRate) {
 	int iSplit = UTILS.random(numNeurons);
 
-	for (int iN = 0; iN < numNeurons; iN++) {
-		if (iN < iSplit)
-			addNeuron().init(numInputsPerNeuron, mum.getNeuron(iN), mutationRate);
+	for (int iNeurom = 0; iNeurom < numNeurons; iNeurom++) {
+		if (iNeurom < iSplit)
+			addNeuron().init(numInputsPerNeuron, mum.getNeuron(iNeurom), mutationRate);
 		else
-			addNeuron().init(numInputsPerNeuron, dad.getNeuron(iN), mutationRate);
+			addNeuron().init(numInputsPerNeuron, dad.getNeuron(iNeurom), mutationRate);
 	}
 	return numNeurons;
 }
@@ -94,4 +100,5 @@ void NeuronLayer::free() {
 		pNeuron->free();
 	}
 	mpNeurons.clear();
+	Poolable::free();
 }
